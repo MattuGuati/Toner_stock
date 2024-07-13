@@ -5,92 +5,104 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Toner Control</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        .navbar-custom {
+            background-color: #343a40;
+        }
+        .navbar-custom .navbar-brand,
+        .navbar-custom .nav-link {
+            color: #ffffff;
+        }
+    </style>
 </head>
 <body>
+    <nav class="navbar navbar-expand-lg navbar-custom">
+        <a class="navbar-brand" href="#">Toner Control</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('index') }}">Inicio</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('statistics') }}">Estadísticas</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-toggle="modal" data-target="#addSectorModal">Añadir Sector</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+
     <div class="container mt-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>Toner Control</h1>
-            <button class="btn btn-secondary" id="menu-toggle">☰</button>
-        </div>
+        <h2>Stock de Tóners</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Modelo</th>
+                    <th>Cantidad Actual</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for toner in toners %}
+                <tr class="{% if toner.cantidad_actual < 2 %}table-danger{% elif toner.cantidad_actual < 4 %}table-warning{% endif %}">
+                    <td>{{ toner.modelo }}</td>
+                    <td>{{ toner.cantidad_actual }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
 
-        <div class="d-flex">
-            <nav id="sidebar" class="bg-light border-right" style="display: none; width: 250px;">
-                <div class="list-group list-group-flush">
-                    <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action bg-light">Inicio</a>
-                    <a href="{{ url_for('statistics') }}" class="list-group-item list-group-item-action bg-light">Estadísticas</a>
-                    <a href="#" class="list-group-item list-group-item-action bg-light" data-toggle="modal" data-target="#addSectorModal">Añadir Sector</a>
-                </div>
-            </nav>
-
-            <div id="page-content-wrapper" class="w-100">
-                <h2>Stock de Tóners</h2>
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>Modelo</th>
-                            <th>Cantidad Actual</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for toner in toners %}
-                        <tr>
-                            <td>{{ toner.modelo }}</td>
-                            <td>{{ toner.cantidad_actual }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-
-                <h2>Añadir Tóner</h2>
-                <form action="{{ url_for('add_toner') }}" method="post">
-                    <div class="form-group">
-                        <label for="modelo">Modelo</label>
-                        <input type="text" class="form-control" id="modelo" name="modelo" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="cantidad_actual">Cantidad Actual</label>
-                        <input type="number" class="form-control" id="cantidad_actual" name="cantidad_actual" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Añadir Tóner</button>
-                </form>
-
-                <h2>Añadir Movimiento</h2>
-                <form action="{{ url_for('add_movement') }}" method="post">
-                    <div class="form-group">
-                        <label for="toner_id">Modelo de Tóner</label>
-                        <select class="form-control" id="toner_id" name="toner_id" required>
-                            {% for toner in toners %}
-                            <option value="{{ toner.id }}">{{ toner.modelo }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="tipo">Tipo</label>
-                        <select class="form-control" id="tipo" name="tipo" required>
-                            <option value="Entrada">Entrada</option>
-                            <option value="Salida">Salida</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="cantidad">Cantidad</label>
-                        <input type="number" class="form-control" id="cantidad" name="cantidad" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="sector_id">Sector</label>
-                        <select class="form-control" id="sector_id" name="sector_id" required>
-                            {% for sector in sectors %}
-                            <option value="{{ sector.id }}">{{ sector.nombre }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="nota">Nota</label>
-                        <input type="text" class="form-control" id="nota" name="nota">
-                    </div>
-                    <button type="submit" class="btn btn-primary">Añadir Movimiento</button>
-                </form>
+        <h2>Añadir Tóner</h2>
+        <form action="{{ url_for('add_toner') }}" method="post">
+            <div class="form-group">
+                <label for="modelo">Modelo</label>
+                <input type="text" class="form-control" id="modelo" name="modelo" required>
             </div>
-        </div>
+            <div class="form-group">
+                <label for="cantidad_actual">Cantidad Actual</label>
+                <input type="number" class="form-control" id="cantidad_actual" name="cantidad_actual" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Añadir Tóner</button>
+        </form>
+
+        <h2>Añadir Movimiento</h2>
+        <form action="{{ url_for('add_movement') }}" method="post">
+            <div class="form-group">
+                <label for="toner_id">Modelo de Tóner</label>
+                <select class="form-control" id="toner_id" name="toner_id" required>
+                    {% for toner in toners %}
+                    <option value="{{ toner.id }}">{{ toner.modelo }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="tipo">Tipo</label>
+                <select class="form-control" id="tipo" name="tipo" required>
+                    <option value="Entrada">Entrada</option>
+                    <option value="Salida">Salida</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="cantidad">Cantidad</label>
+                <input type="number" class="form-control" id="cantidad" name="cantidad" required>
+            </div>
+            <div class="form-group">
+                <label for="sector_id">Sector</label>
+                <select class="form-control" id="sector_id" name="sector_id" required>
+                    {% for sector in sectors %}
+                    <option value="{{ sector.id }}">{{ sector.nombre }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="nota">Nota</label>
+                <input type="text" class="form-control" id="nota" name="nota">
+            </div>
+            <button type="submit" class="btn btn-primary">Añadir Movimiento</button>
+        </form>
     </div>
 
     <!-- Modal -->
@@ -126,15 +138,5 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        document.getElementById('menu-toggle').addEventListener('click', function() {
-            var sidebar = document.getElementById('sidebar');
-            if (sidebar.style.display === 'none') {
-                sidebar.style.display = 'block';
-            } else {
-                sidebar.style.display = 'none';
-            }
-        });
-    </script>
 </body>
 </html>
