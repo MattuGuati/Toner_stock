@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Estadísticas</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Estadísticas</h1>
+            <a href="{{ url_for('index') }}" class="btn btn-secondary">Inicio</a>
+        </div>
+        
+        <h2>Consumos por Sector</h2>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Sector</th>
+                    <th>Total Consumido</th>
+                    <th>Duración Predefinida (días)</th>
+                    <th>Predicción (días)</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for sector, total_consumido, duracion_predefinida in consumos %}
+                <tr>
+                    <td>{{ sector }}</td>
+                    <td>{{ total_consumido }}</td>
+                    <td>{{ duracion_predefinida }}</td>
+                    <td>{{ predicciones[sector] | round(2) }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <a href="{{ url_for('download_report') }}" class="btn btn-primary">Descargar Reporte</a>
+    </div>
+</body>
+</html>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Toner Control</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Toner Control</h1>
+            <button class="btn btn-secondary" id="menu-toggle">☰</button>
+        </div>
+
+        <div class="d-flex">
+            <nav id="sidebar" class="bg-light border-right" style="display: none; width: 250px;">
+                <div class="list-group list-group-flush">
+                    <a href="{{ url_for('index') }}" class="list-group-item list-group-item-action bg-light">Inicio</a>
+                    <a href="{{ url_for('statistics') }}" class="list-group-item list-group-item-action bg-light">Estadísticas</a>
+                    <a href="#" class="list-group-item list-group-item-action bg-light" data-toggle="modal" data-target="#addSectorModal">Añadir Sector</a>
+                </div>
+            </nav>
+
+            <div id="page-content-wrapper" class="w-100">
+                <h2>Stock de Tóners</h2>
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>Modelo</th>
+                            <th>Cantidad Actual</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for toner in toners %}
+                        <tr>
+                            <td>{{ toner.modelo }}</td>
+                            <td>{{ toner.cantidad_actual }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <h2>Añadir Tóner</h2>
+                <form action="{{ url_for('add_toner') }}" method="post">
+                    <div class="form-group">
+                        <label for="modelo">Modelo</label>
+                        <input type="text" class="form-control" id="modelo" name="modelo" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="cantidad_actual">Cantidad Actual</label>
+                        <input type="number" class="form-control" id="cantidad_actual" name="cantidad_actual" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Añadir Tóner</button>
+                </form>
+
+                <h2>Añadir Movimiento</h2>
+                <form action="{{ url_for('add_movement') }}" method="post">
+                    <div class="form-group">
+                        <label for="toner_id">Modelo de Tóner</label>
+                        <select class="form-control" id="toner_id" name="toner_id" required>
+                            {% for toner in toners %}
+                            <option value="{{ toner.id }}">{{ toner.modelo }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipo">Tipo</label>
+                        <select class="form-control" id="tipo" name="tipo" required>
+                            <option value="Entrada">Entrada</option>
+                            <option value="Salida">Salida</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cantidad">Cantidad</label>
+                        <input type="number" class="form-control" id="cantidad" name="cantidad" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sector_id">Sector</label>
+                        <select class="form-control" id="sector_id" name="sector_id" required>
+                            {% for sector in sectors %}
+                            <option value="{{ sector.id }}">{{ sector.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="nota">Nota</label>
+                        <input type="text" class="form-control" id="nota" name="nota">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Añadir Movimiento</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="addSectorModal" tabindex="-1" role="dialog" aria-labelledby="addSectorModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addSectorModalLabel">Añadir Sector</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form action="{{ url_for('add_sector') }}" method="post">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="nombre">Nombre del Sector</label>
+                            <input type="text" class="form-control" id="nombre" name="nombre" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="duracion_predefinida">Duración Predefinida (días)</label>
+                            <input type="number" class="form-control" id="duracion_predefinida" name="duracion_predefinida" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Añadir Sector</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.getElementById('menu-toggle').addEventListener('click', function() {
+            var sidebar = document.getElementById('sidebar');
+            if (sidebar.style.display === 'none') {
+                sidebar.style.display = 'block';
+            } else {
+                sidebar.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
