@@ -1,102 +1,31 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estadísticas de Consumo de Tóner</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <style>
-        .navbar-custom {
-            background-color: #343a40;
-        }
-        .navbar-custom .navbar-brand,
-        .navbar-custom .nav-link {
-            color: #ffffff;
-        }
-    </style>
-</head>
-<body>
-    <nav class="navbar navbar-expand-lg navbar-custom">
-        <a class="navbar-brand" href="#">Toner Control</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('index') }}">Inicio</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="{{ url_for('statistics') }}">Estadísticas</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" href="#" data-toggle="modal" data-target="#addSectorModal">Añadir Sector</a>
-                </li>
-            </ul>
-        </div>
-    </nav>
+{% extends "base.html" %}
 
-    <div class="container mt-5">
-        <h2>Estadísticas de Consumo de Tóner</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Sector</th>
-                    <th>Total Consumido</th>
-                    <th>Duración Predefinida</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for sector, total_consumido, duracion_predefinida in consumos %}
-                <tr>
-                    <td>{{ sector }}</td>
-                    <td>{{ total_consumido }}</td>
-                    <td>{{ duracion_predefinida }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <h3>Predicciones de Consumo</h3>
-        <ul>
-            {% for sector, prediccion in predicciones.items() %}
-            <li>{{ sector }}: {{ prediccion }}</li>
+{% block title %}Estadísticas{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Estadísticas</h2>
+    <div id="graph" class="mb-4">
+        {{ graph_html|safe }}
+    </div>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Sector</th>
+                <th>Total Consumido</th>
+                <th>Predicción de Consumo</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for consumo in consumos %}
+            <tr>
+                <td>{{ consumo.nombre }}</td>
+                <td>{{ consumo.total_consumido }}</td>
+                <td>{{ predicciones[consumo.nombre] }}</td>
+            </tr>
             {% endfor %}
-        </ul>
-        
-    </div>
-
-    <!-- Modal -->
-    <div class="modal fade" id="addSectorModal" tabindex="-1" role="dialog" aria-labelledby="addSectorModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="addSectorModalLabel">Añadir Sector</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form action="{{ url_for('add_sector') }}" method="post">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <label for="nombre">Nombre del Sector</label>
-                            <input type="text" class="form-control" id="nombre" name="nombre" required>
-                        </div>
-                        <div class="form-group">
-                            <label for="duracion_predefinida">Duración Predefinida (días)</label>
-                            <input type="number" class="form-control" id="duracion_predefinida" name="duracion_predefinida" required>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cerrar</button>
-                        <button type="submit" class="btn btn-primary">Añadir Sector</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
+        </tbody>
+    </table>
+    <a href="{{ url_for('download_report') }}" class="btn btn-primary mt-3">Descargar Reporte</a>
+</div>
+{% endblock %}

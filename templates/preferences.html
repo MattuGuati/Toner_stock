@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Preferencias{% endblock %}
+
+{% block content %}
+<h2>Preferencias</h2>
+<form action="{{ url_for('set_preferences') }}" method="post">
+    <div>
+        <label for="toner_id">Tóner:</label>
+        <select name="toner_id" id="toner_id">
+            {% for toner in toners %}
+                <option value="{{ toner.id }}">{{ toner.modelo }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div>
+        <label for="min_stock">Stock Mínimo:</label>
+        <input type="number" name="min_stock" id="min_stock">
+    </div>
+    <div>
+        <label for="proveedor_email">Email del Proveedor:</label>
+        <input type="email" name="proveedor_email" id="proveedor_email">
+    </div>
+    <button type="submit">Guardar Preferencias</button>
+</form>
+{% endblock %}

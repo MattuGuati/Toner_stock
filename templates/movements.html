@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Movimientos{% endblock %}
+
+{% block content %}
+<h2>Movimientos</h2>
+<table>
+    <thead>
+        <tr>
+            <th>Sector</th>
+            <th>Modelo</th>
+            <th>Cantidad</th>
+            <th>Acción</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for movimiento in movimientos %}
+        <tr>
+            <td>{{ movimiento.sector.nombre }}</td>
+            <td>{{ movimiento.toner.modelo }}</td>
+            <td>{{ movimiento.cantidad }}</td>
+            <td>
+                {% if not movimiento.reverted %}
+                <form action="{{ url_for('revert_movement', movement_id=movimiento.id) }}" method="post">
+                    <button type="submit">Revertir</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

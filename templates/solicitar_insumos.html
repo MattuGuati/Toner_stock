@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Solicitar Insumos{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Solicitar Insumos</h2>
+    <form action="{{ url_for('solicitar_insumos') }}" method="post">
+        <div class="form-group">
+            <label for="toners">Selecciona los Insumos:</label>
+            <select multiple name="toners" id="toners" class="form-control">
+                {% for toner in toners %}
+                <option value="{{ toner.id }}">{{ toner.modelo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Solicitar Insumos</button>
+    </form>
+</div>
+{% endblock %}
