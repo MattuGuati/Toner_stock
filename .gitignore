@@ -1,3 +1,8 @@
 # entrnos virtuales
-/venv
+venv/
+
+# cache de py
+__pycache__/
+src/__pycache__/
+
 
