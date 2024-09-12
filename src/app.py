@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_mail import Mail, Message
+from controlers.movementcontroler import all_movements, rev_movement, new_movement
+from controlers.tonercontroler import all_toners, one_toner, plus_toner
+from controlers.sectorcontroler import all_sectors
 import pandas as pd  # Asegúrate de importar pandas
 from models import db, Toner, Movement, Sector, Preferences
 
@@ -14,9 +17,7 @@ mail = Mail(app)
 
 @app.route('/')
 def index():
-    toners = Toner.query.all()
-    sectors = Sector.query.all()
-    return render_template('index.html', toners=toners, sectors=sectors)
+    return render_template('index.html', toners = all_toners(), sectors = all_sectors())
 
 @app.route('/add_movement', methods=['POST'])
 def add_movement():
@@ -24,7 +25,8 @@ def add_movement():
     sector_id = request.form.get('sector_id')
     cantidad = request.form.get('cantidad', type=int)
     
-    toner = Toner.query.get(toner_id)
+    toner = one_toner(toner_id)
+    
     if not toner or not sector_id:
         flash('El tóner o sector no existe', 'error')
         return redirect(url_for('index'))
@@ -33,19 +35,30 @@ def add_movement():
         flash('No hay suficiente stock para realizar esta salida', 'error')
         return redirect(url_for('index'))
     
-    nuevo_movimiento = Movement(toner_id=toner_id, tipo='Salida', cantidad=cantidad, sector_id=sector_id)
-    toner.cantidad_actual -= cantidad
-    
-    db.session.add(nuevo_movimiento)
-    db.session.commit()
+    new_movement('Salida', cantidad, toner_id, sector_id)
     
     flash('Movimiento registrado con éxito', 'success')
     return redirect(url_for('index'))
 
-@app.route('/add_pedido', methods=['POST'])
-def add_pedido():
-    # Lógica para añadir un pedido
-    pass
+@app.route('/entrada_insumo', methods=['GET','POST'])
+def entrada_insumo():
+    if request.method == 'POST':
+        toner_id = request.form.get('toner_id')
+        cantidad = request.form.get('cantidad', type=int)
+        
+        if toner_id and cantidad is not None:
+            try:
+                plus_toner(toner_id, cantidad)
+                flash('Movimiento registrado exitosamente', 'success')
+            except ValueError as e:
+                flash(str(e), 'error')
+        else:
+            flash('Faltan datos en el formulario', 'error')
+        
+        return redirect(url_for('entrada_insumo'))
+    
+    toners = Toner.query.all()
+    return render_template('entrada_insumo.html', toners=toners)
 
 @app.route('/solicitar_insumos', methods=['GET', 'POST'])
 def solicitar_insumos():
@@ -54,7 +67,7 @@ def solicitar_insumos():
         pedidos = {}
 
         for toner_id in toner_ids:
-            toner = Toner.query.get(toner_id)
+            toner = one_toner(toner_id)
             if toner.preferences.proveedor_email in pedidos:
                 pedidos[toner.preferences.proveedor_email].append(toner)
             else:
@@ -85,8 +98,7 @@ def enviar_correo_pedido(proveedor_email, toners):
 
 @app.route('/preferences')
 def preferences():
-    toners = Toner.query.all()
-    return render_template('preferences.html', toners=toners)
+    return render_template('preferences.html', all_toners())
 
 @app.route('/set_preferences', methods=['POST'])
 def set_preferences():
@@ -108,25 +120,11 @@ def set_preferences():
 
 @app.route('/movements')
 def movements():
-    movimientos = Movement.query.all()  #ver ordenamiento
-    return render_template('movements.html', movimientos=movimientos)
+    return render_template('movements.html', movimientos = all_movements())
 
 @app.route('/revert_movement/<int:movement_id>', methods=['POST'])
 def revert_movement(movement_id):
-    movimiento = Movement.query.get(movement_id)
-    if movimiento:
-        toner = Toner.query.get(movimiento.toner_id)
-        if movimiento.tipo == 'Salida':
-            toner.cantidad_actual += movimiento.cantidad
-        elif movimiento.tipo == 'Entrada':
-            toner.cantidad_actual -= movimiento.cantidad
-
-        movimiento.reverted = True
-        db.session.commit()
-        flash('Movimiento revertido con éxito', 'success')
-    else:
-        flash('Movimiento no encontrado', 'error')
-
+    rev_movement(movement_id)
     return redirect(url_for('movements'))
 
 @app.route('/statistics')
@@ -139,6 +137,9 @@ def statistics():
     graph_html = df_consumos.to_html(classes='table table-bordered')
 
     return render_template('statistics.html', graph_html=graph_html)
+
+
+
 
 if __name__ == '__main__':
     with app.app_context():

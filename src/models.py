@@ -1,4 +1,5 @@
 from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
 
 db = SQLAlchemy()
 
@@ -22,6 +23,7 @@ class Sector(db.Model):
 class Movement(db.Model):
     #agregar fecha-hora
     id = db.Column(db.Integer, primary_key=True)
+    fecha = db.Column(db.DateTime, default=datetime.utcnow)
     tipo = db.Column(db.String(10), nullable=False)  # 'Entrada' or 'Salida'
     cantidad = db.Column(db.Integer, nullable=False)
     toner_id = db.Column(db.Integer, db.ForeignKey('toner.id'), nullable=False)

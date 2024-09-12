@@ -47,7 +47,7 @@
                     <div class="progress">
                         <div class="progress-bar {% if toner.cantidad_actual < toner.preferences.min_stock %}bg-danger{% else %}bg-success{% endif %}" 
                              role="progressbar" 
-                             style="width: {{ width }}%;" 
+                             style="width: {{ width }}%" 
                              aria-valuenow="{{ toner.cantidad_actual }}" 
                              aria-valuemin="0" 
                              aria-valuemax="{{ toner.preferences.min_stock }}">

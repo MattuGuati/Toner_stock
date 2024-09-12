@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}Entrada{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Ingreso de Insumos</h2>
+    <form action="{{ url_for('entrada_insumo') }}" method="post">
+        <div class="form-group">
+            <label for="toner_id">Toner:</label>
+            <select name="toner_id" id="toner_id" class="form-control">
+                {% for toner in toners %}
+                    <option value="{{ toner.id }}">{{ toner.modelo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="cantidad">Cantidad:</label>
+            <input type="number" name="cantidad" id="cantidad" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-dark">Registrar Ingreso</button>
+    </form>
+
+    <h2 class="mt-4">Stock de Tóners</h2>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Modelo</th>
+                    <th>Cantidad Actual</th>
+                    <th>Stock Mínimo</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for toner in toners %}
+                {% set width = (toner.cantidad_actual / toner.preferences.min_stock) * 100 %}
+                <tr>
+                    <td>{{ toner.modelo }}</td>
+                    <td>
+                        <div class="progress">
+                            <div class="progress-bar {% if toner.cantidad_actual < toner.preferences.min_stock %}bg-danger{% else %}bg-success{% endif %}" 
+                                role="progressbar" 
+                                style="width: {{ width }}%" 
+                                aria-valuenow="{{ toner.cantidad_actual }}" 
+                                aria-valuemin="0" 
+                                aria-valuemax="{{ toner.preferences.min_stock }}">
+                                {{ toner.cantidad_actual }}
+                            </div>
+                        </div>
+                    </td>
+                    <td>{{ toner.preferences.min_stock }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
