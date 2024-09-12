@@ -23,7 +23,7 @@ table {
     border-collapse: collapse;
 }
 
-table, th, td {
+table, th, td{
     border: 1px solid #dee2e6;
 }
 
@@ -32,8 +32,14 @@ th, td {
     text-align: left;
 }
 
+
 th {
     background-color: #343a40;
+    color: white;
+}
+
+.revert {
+    background-color: rgb(255, 152, 152);
     color: white;
 }
 
@@ -58,14 +64,14 @@ th {
     background-color: #28a745;
 }
 
-button {
+.btn.btn-dark {
     background-color: #343a40;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
+    color: white;               
+    padding: 10px 20px;         
+    border: none;              
+    border-radius: 10px;         
+    cursor: pointer;            
+    margin-top: 10px;           
 }
 
 button:hover {

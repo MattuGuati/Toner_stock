@@ -2,11 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_mail import Mail, Message
-from controlers.movementcontroler import all_movements, rev_movement, new_movement
-from controlers.tonercontroler import all_toners, one_toner, plus_toner
-from controlers.sectorcontroler import all_sectors
-import pandas as pd  # Asegúrate de importar pandas
+import pandas as pd  
 from models import db, Toner, Movement, Sector, Preferences
+#import from controlres
+from controlers.movementcontroler import all_movements, rev_movement, new_movement
+from controlers.tonercontroler import all_toners, one_toner, plus_toner, less_toner
+from controlers.sectorcontroler import all_sectors
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -19,26 +20,18 @@ mail = Mail(app)
 def index():
     return render_template('index.html', toners = all_toners(), sectors = all_sectors())
 
-@app.route('/add_movement', methods=['POST'])
-def add_movement():
-    toner_id = request.form.get('toner_id')
-    sector_id = request.form.get('sector_id')
-    cantidad = request.form.get('cantidad', type=int)
+@app.route('/salida_insunmo', methods=['GET','POST'])
+def salida_insumo():
+    if request.method == 'POST':
+        toner_id = request.form.get('toner_id')
+        sector_id = request.form.get('sector_id')
+        cantidad = request.form.get('cantidad', type=int)
     
-    toner = one_toner(toner_id)
-    
-    if not toner or not sector_id:
-        flash('El tóner o sector no existe', 'error')
-        return redirect(url_for('index'))
-    
-    if cantidad > toner.cantidad_actual:
-        flash('No hay suficiente stock para realizar esta salida', 'error')
-        return redirect(url_for('index'))
-    
-    new_movement('Salida', cantidad, toner_id, sector_id)
-    
-    flash('Movimiento registrado con éxito', 'success')
-    return redirect(url_for('index'))
+        if less_toner(toner_id, cantidad):
+            return redirect(url_for('salida_insumo'))
+
+        new_movement('Salida', cantidad, toner_id, sector_id)
+    return render_template('salida_insumo.html', toners = all_toners(), sectors = all_sectors())
 
 @app.route('/entrada_insumo', methods=['GET','POST'])
 def entrada_insumo():
@@ -46,19 +39,11 @@ def entrada_insumo():
         toner_id = request.form.get('toner_id')
         cantidad = request.form.get('cantidad', type=int)
         
-        if toner_id and cantidad is not None:
-            try:
-                plus_toner(toner_id, cantidad)
-                flash('Movimiento registrado exitosamente', 'success')
-            except ValueError as e:
-                flash(str(e), 'error')
-        else:
-            flash('Faltan datos en el formulario', 'error')
-        
-        return redirect(url_for('entrada_insumo'))
+        if plus_toner(toner_id, cantidad):
+            return redirect(url_for('entrada_insumo'))
     
-    toners = Toner.query.all()
-    return render_template('entrada_insumo.html', toners=toners)
+        new_movement('Entrada', cantidad, toner_id)
+    return render_template('entrada_insumo.html', toners= all_toners())
 
 @app.route('/solicitar_insumos', methods=['GET', 'POST'])
 def solicitar_insumos():

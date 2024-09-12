@@ -10,17 +10,15 @@ def all_movements():
 def one_movement(movement_id):
     return Movement.query.get(movement_id)
     
-def new_movement(tipo, cantidad, toner_id, sector_id):
+def new_movement(tipo, cantidad, toner_id, sector_id = ''):
     new_movement = Movement(
         fecha = datetime.now(),
         tipo = tipo, 
         cantidad = cantidad, 
         toner_id = toner_id, 
-        sector_id = sector_id)
+        sector_id = sector_id
+        )
     
-    toner = one_toner(new_movement.toner_id)
-    toner.cantidad_actual -= new_movement.cantidad
-
     db.session.add(new_movement)
     db.session.commit()
 

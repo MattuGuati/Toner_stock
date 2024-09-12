@@ -8,6 +8,7 @@
     <thead>
         <tr>
             <th>Sector</th>
+            <th>Tipo</th>
             <th>Modelo</th>
             <th>Cantidad</th>
             <th>Fecha</th>
@@ -17,17 +18,29 @@
     <tbody>
         {% for movimiento in movimientos %}
         <tr>
+            {% if not movimiento.reverted %}
             <td>{{ movimiento.sector.nombre }}</td>
+            <td>{{ movimiento.tipo }}</td>
             <td>{{ movimiento.toner.modelo }}</td>
             <td>{{ movimiento.cantidad }}</td>
             <td>{{ movimiento.fecha }}</td>
             <td>
-                {% if not movimiento.reverted %}
                 <form action="{{ url_for('revert_movement', movement_id=movimiento.id) }}" method="post">
                     <button type="submit">Revertir</button>
-                </form>
-                {% endif %}
+                </form>     
             </td>
+            {% endif %}
+        </tr>
+        <tr class="revert">
+            {% if movimiento.reverted %}
+            <td>{{ movimiento.sector.nombre }}</td>
+            <td>{{ movimiento.tipo }}</td>
+            <td>{{ movimiento.toner.modelo }}</td>
+            <td>{{ movimiento.cantidad }}</td>
+            <td>{{ movimiento.fecha }}</td>
+            <td> 
+            </td>
+            {% endif %}
         </tr>
         {% endfor %}
     </tbody>
