@@ -10,7 +10,7 @@
             <label for="sector">Sector:</label>
             <select name="sector_id" id="sector" class="form-control">
                 {% for sector in sectors %}
-                    <option value="{{ sector.id }}">{{ sector.nombre }}</option>
+                    <option value="{{ sector.id }}">{{ sector.nombre }}</option>     
                 {% endfor %}
             </select>
         </div>
@@ -28,7 +28,8 @@
         </div>
         <button type="submit" class="btn btn-dark">Registrar Movimiento</button>
     </form>
-
+</div>
+<div class="container">
     {% include "stock.html" %}
     
 </div>

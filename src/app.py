@@ -4,10 +4,10 @@ from flask_migrate import Migrate
 from flask_mail import Mail, Message
 import pandas as pd  
 from models import db, Toner, Movement, Sector, Preferences
-#import from controlres
+#import from controlers
 from controlers.movementcontroler import all_movements, rev_movement, new_movement
 from controlers.tonercontroler import all_toners, one_toner, plus_toner, less_toner
-from controlers.sectorcontroler import all_sectors
+from controlers.sectorcontroler import all_sectors, del_sector, add_sector
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -16,10 +16,12 @@ db.init_app(app)
 migrate = Migrate(app, db)
 mail = Mail(app)
 
+#!---index---!
 @app.route('/')
 def index():
     return render_template('index.html', toners = all_toners(), sectors = all_sectors())
 
+#!---insumos---!
 @app.route('/salida_insunmo', methods=['GET','POST'])
 def salida_insumo():
     if request.method == 'POST':
@@ -103,6 +105,7 @@ def set_preferences():
     flash('Preferencias actualizadas con éxito', 'success')
     return redirect(url_for('preferences'))
 
+#!---movimientos---!
 @app.route('/movements')
 def movements():
     return render_template('movements.html', movimientos = all_movements())
@@ -111,6 +114,37 @@ def movements():
 def revert_movement(movement_id):
     rev_movement(movement_id)
     return redirect(url_for('movements'))
+
+#!---sectores---!
+@app.route('/sectores')
+def sectores():
+    return render_template('sectores.html', sectores = all_sectors())
+
+@app.route('/delete_sector/<int:sector_id>', methods=['POST'])
+def delete_sector(sector_id):
+    del_sector(sector_id)
+    return redirect(url_for('sectores'))
+
+@app.route('/alta_sector', methods=['POST'])
+def alta_sector():
+    if request.method == 'POST':
+        sector_name = request.form.get('sector_name')
+        duracion_predefinida = request.form.get('duracion_predefinida', type= int)
+        
+        if not sector_name or not duracion_predefinida:
+            flash('Por favor, complete todos los campos.', 'danger')
+            return redirect(url_for('sectores'))
+
+        try:
+            # Crear un nuevo sector
+            add_sector(sector_name, duracion_predefinida)
+            flash('Sector registrado exitosamente.', 'success')
+            return redirect(url_for('sectores'))   
+        
+        except Exception as e:
+            db.session.rollback()  # Revertir cambios si hay un error
+            flash(f'Error al registrar el sector: {e}', 'danger')
+
 
 @app.route('/statistics')
 def statistics():
