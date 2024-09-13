@@ -15,22 +15,13 @@ def add_toner(modelo, cantidad_actual):
 
 def less_toner(toner_id, cantidad):
     toner = one_toner(toner_id)
-    
-    if cantidad > toner.cantidad_actual:
-        flash('No hay suficiente stock para realizar esta salida', 'error')
-        return True
-
-    elif toner_id and cantidad is not None:
-            try:
-                toner.cantidad_actual = toner.cantidad_actual - cantidad
-                db.session.commit()
-                flash('Movimiento registrado exitosamente', 'success')
-                return False
-            except ValueError as e:
-                flash(str(e), 'error')
-                return True
-    else:
-        flash('Faltan datos en el formulario', 'error')
+    try:
+        toner.cantidad_actual = toner.cantidad_actual - cantidad
+        db.session.commit()
+        flash('Movimiento registrado exitosamente', 'success')
+        return False
+    except ValueError as e:
+        flash(str(e), 'error')
         return True
 
 def plus_toner(toner_id, cantidad):    
@@ -55,7 +46,7 @@ def plus_toner(toner_id, cantidad):
 
 
 def del_toner(toner_id):
-    toner = Toner.query.get(toner_id)
+    toner = one_toner(toner_id)
     if toner:
         db.session.delete(toner)
         db.session.commit()

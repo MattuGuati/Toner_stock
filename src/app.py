@@ -8,6 +8,7 @@ from models import db, Toner, Movement, Sector, Preferences
 from controlers.movementcontroler import all_movements, rev_movement, new_movement
 from controlers.tonercontroler import all_toners, one_toner, plus_toner, less_toner
 from controlers.sectorcontroler import all_sectors, del_sector, add_sector
+from controlers.validationcontroler import validar_salida_toner, validar_entrada_toner, validar_entrada_sector
 
 app = Flask(__name__)
 app.config.from_object('config.Config')
@@ -28,11 +29,13 @@ def salida_insumo():
         toner_id = request.form.get('toner_id')
         sector_id = request.form.get('sector_id')
         cantidad = request.form.get('cantidad', type=int)
-    
-        if less_toner(toner_id, cantidad):
-            return redirect(url_for('salida_insumo'))
 
-        new_movement('Salida', cantidad, toner_id, sector_id)
+        if validar_salida_toner(toner_id, sector_id, cantidad):    
+            if less_toner(toner_id, cantidad):
+                return redirect(url_for('salida_insumo'))
+
+            new_movement('Salida', cantidad, toner_id, sector_id)
+
     return render_template('salida_insumo.html', toners = all_toners(), sectors = all_sectors())
 
 @app.route('/entrada_insumo', methods=['GET','POST'])
@@ -41,10 +44,11 @@ def entrada_insumo():
         toner_id = request.form.get('toner_id')
         cantidad = request.form.get('cantidad', type=int)
         
-        if plus_toner(toner_id, cantidad):
-            return redirect(url_for('entrada_insumo'))
-    
-        new_movement('Entrada', cantidad, toner_id)
+        if validar_entrada_toner(toner_id, cantidad):
+            if plus_toner(toner_id, cantidad):
+                return redirect(url_for('entrada_insumo'))
+        
+            new_movement('Entrada', cantidad, toner_id)
     return render_template('entrada_insumo.html', toners= all_toners())
 
 @app.route('/solicitar_insumos', methods=['GET', 'POST'])
@@ -128,23 +132,20 @@ def delete_sector(sector_id):
 @app.route('/alta_sector', methods=['POST'])
 def alta_sector():
     if request.method == 'POST':
-        sector_name = request.form.get('sector_name')
+        sector_name = request.form.get('sector_name', type= str)
         duracion_predefinida = request.form.get('duracion_predefinida', type= int)
-        
-        if not sector_name or not duracion_predefinida:
-            flash('Por favor, complete todos los campos.', 'danger')
-            return redirect(url_for('sectores'))
 
-        try:
-            # Crear un nuevo sector
-            add_sector(sector_name, duracion_predefinida)
-            flash('Sector registrado exitosamente.', 'success')
-            return redirect(url_for('sectores'))   
+        if validar_entrada_sector(sector_name, duracion_predefinida):
+            try:
+                add_sector(sector_name, duracion_predefinida)
+                flash('Sector registrado exitosamente.', 'success')
+                return redirect(url_for('sectores'))   
+            
+            except Exception as e:
+                db.session.rollback()  # Revertir cambios si hay un error
+                flash(f'Error al registrar el sector: {e}', 'danger')
         
-        except Exception as e:
-            db.session.rollback()  # Revertir cambios si hay un error
-            flash(f'Error al registrar el sector: {e}', 'danger')
-
+        return redirect(url_for('sectores'))
 
 @app.route('/statistics')
 def statistics():
