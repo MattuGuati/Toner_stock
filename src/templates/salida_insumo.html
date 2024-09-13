@@ -8,20 +8,21 @@
     <form action="{{ url_for('salida_insumo') }}" method="post">
         <div class="form-group">
             <label for="sector">Sector:</label>
-            <select name="sector_id" id="sector" class="form-control">
+            <select name="sector_id" id="sector" class="form-control" ">
                 {% for sector in sectors %}
                     <option value="{{ sector.id }}">{{ sector.nombre }}</option>     
                 {% endfor %}
             </select>
         </div>
         <div class="form-group">
-            <label for="toner_id">Tóner:</label>
+            <label for="toner_id">Toner:</label>
             <select name="toner_id" id="toner_id" class="form-control">
                 {% for toner in toners %}
                     <option value="{{ toner.id }}">{{ toner.modelo }}</option>
                 {% endfor %}
             </select>
         </div>
+        
         <div class="form-group">
             <label for="cantidad">Cantidad:</label>
             <input type="number" name="cantidad" id="cantidad" class="form-control">
