@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+
+{% block title %}Sectores{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Sectores</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nombre</th>
+                <th>Duracion</th>
+                <th>Eliminar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for sector in sectores %}
+            <tr>
+                <td>{{ sector.nombre }}</td>
+                <td>{{ sector.duracion_predefinida }}</td>
+                <td>
+                    <form action="{{ url_for('delete_sector', sector_id = sector.id) }}" method="post">
+                        <button type="submit">Eliminar</button>
+                    </form>     
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+<div class="container">
+    <h2>Alta de Sector</h2>
+        <form action="{{ url_for('alta_sector') }}" method="post">
+            <div class="form-group">
+                <label for="sector_name">Sector:</label>
+                <input type="text" name="sector_name" id="sector_name" class="form-control">
+            </div>
+            <div class="form-group">
+                <label for="duracion_predefinida">Duracion del sector x mes:</label>
+                <input type="number" name="duracion_predefinida" id="duracion_predefinida" class="form-control">
+            </div>
+            <button type="submit" class="btn btn-dark">Registrar Sector</button>
+        </form>
+</div>
+{% endblock %}

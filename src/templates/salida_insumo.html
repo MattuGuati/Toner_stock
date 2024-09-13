@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+
+{% block title %}Salida{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2>Registrar Salida</h2>
+    <form action="{{ url_for('salida_insumo') }}" method="post">
+        <div class="form-group">
+            <label for="sector">Sector:</label>
+            <select name="sector_id" id="sector" class="form-control">
+                {% for sector in sectors %}
+                    <option value="{{ sector.id }}">{{ sector.nombre }}</option>     
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="toner_id">Tóner:</label>
+            <select name="toner_id" id="toner_id" class="form-control">
+                {% for toner in toners %}
+                    <option value="{{ toner.id }}">{{ toner.modelo }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="cantidad">Cantidad:</label>
+            <input type="number" name="cantidad" id="cantidad" class="form-control">
+        </div>
+        <button type="submit" class="btn btn-dark">Registrar Movimiento</button>
+    </form>
+</div>
+<div class="container">
+    {% include "stock.html" %}
+    
+</div>
+{% endblock %}
